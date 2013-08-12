@@ -201,4 +201,11 @@ class_<PolyglotOpeningBookEntry>("PolyglotOpeningBookEntry", init<const Position
     .add_property("weight", &PolyglotOpeningBookEntry::weight, &PolyglotOpeningBookEntry::set_weight)
     .add_property("learn", &PolyglotOpeningBookEntry::learn, &PolyglotOpeningBookEntry::set_learn);
 
+class_<GameHeaderBag>("GameHeaderBag", init<>())
+    .def("__len__", &GameHeaderBag::__len__)
+    .def("__getitem__", &GameHeaderBag::__getitem__)
+    .def("__setitem__", &GameHeaderBag::__setitem__)
+    .def("__delitem__", &GameHeaderBag::__delitem__)
+    .def("__contains__", &GameHeaderBag::__contains__);
+
 } // BOOST_PYTHON_MODULE(libchess)

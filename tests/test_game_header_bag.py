@@ -22,37 +22,55 @@ import unittest
 class GameHeaderBagTestCase(unittest.TestCase):
     """Tests for the GameHeaderBag class."""
 
-    def test_contains(self):
-        """Tests checking if a key is in the bag."""
-        bag = chess.GameHeaderBag() 
-        self.assertTrue("Site" in bag)
-        self.assertTrue("Round" in bag)
-        self.assertFalse("PlyCount" in bag)
-        self.assertFalse("FEN" in bag)
-        self.assertFalse("SetUp" in bag)
-
-        bag["FEN"] = chess.START_FEN
-        self.assertFalse("FEN" in bag)
-
-        bag["FEN"] = "8/8/8/1kr5/4KR2/5N2/8/8 w - - 0 1"
-        self.assertTrue("FEN" in bag)
-        self.assertTrue("SetUp" in bag)
-
-        bag["UnknownHeader"] = "foo"
-        self.assertTrue("UnknownHeader" in bag)
-        self.assertFalse("OtherHeader" in bag)
-
-    def test_iterating(self):
-        """Tests iterating over a bag."""
+    def test_dict(self):
+        """Tests the dictionary like behaviour of the header bag."""
         bag = chess.GameHeaderBag()
-        bag["Lorem"] = "Ipsum"
-        bag["Annotator"] = "Awesome annotator"
 
-        order = []
-        for key in bag:
-            order.append(key)
+        bag["Foo"] = "Bar"
+        self.assertEqual(bag["Foo"], "Bar")
+        self.assertTrue("Foo" in bag)
+        self.assertTrue("FOO" in bag)
+        self.assertTrue("foO" in bag)
+        self.assertFalse("Bar" in bag)
+        del bag["fOO"]
+        self.assertFalse("fOO" in bag)
+        self.assertFalse("foo" in bag)
 
-        self.assertEqual(order[0], "Event")
-        self.assertEqual(order[6], "Result")
-        self.assertEqual(order[7], "Annotator")
-        self.assertEqual(order[8], "Lorem")
+        bag["Foo"] = "Bar"
+        bag["FOO"] = "Baz"
+        self.assertEqual(bag["fOo"], "Baz")
+
+#    def test_contains(self):
+#        """Tests checking if a key is in the bag."""
+#        bag = chess.GameHeaderBag()
+#        self.assertTrue("Site" in bag)
+#        self.assertTrue("Round" in bag)
+#        self.assertFalse("PlyCount" in bag)
+#        self.assertFalse("FEN" in bag)
+#        self.assertFalse("SetUp" in bag)
+#
+#        bag["FEN"] = chess.START_FEN
+#        self.assertFalse("FEN" in bag)
+#
+#        bag["FEN"] = "8/8/8/1kr5/4KR2/5N2/8/8 w - - 0 1"
+#        self.assertTrue("FEN" in bag)
+#        self.assertTrue("SetUp" in bag)
+#
+#        bag["UnknownHeader"] = "foo"
+#        self.assertTrue("UnknownHeader" in bag)
+#        self.assertFalse("OtherHeader" in bag)
+#
+#    def test_iterating(self):
+#        """Tests iterating over a bag."""
+#        bag = chess.GameHeaderBag()
+#        bag["Lorem"] = "Ipsum"
+#        bag["Annotator"] = "Awesome annotator"
+#
+#        order = []
+#        for key in bag:
+#            order.append(key)
+#
+#        self.assertEqual(order[0], "Event")
+#        self.assertEqual(order[6], "Result")
+#        self.assertEqual(order[7], "Annotator")
+#        self.assertEqual(order[8], "Lorem")

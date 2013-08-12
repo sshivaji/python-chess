@@ -34,9 +34,10 @@ from libchess import Piece
 from libchess import Move
 from libchess import Position
 from libchess import PolyglotOpeningBookEntry
+from libchess import GameHeaderBag
 
 # Stable.
-from chess.game_header_bag import GameHeaderBag
+#from chess.game_header_bag import GameHeaderBag
 
 # Design phase.
 from chess.polyglot_opening_book import PolyglotOpeningBook
