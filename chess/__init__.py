@@ -35,6 +35,7 @@ from libchess import Move
 from libchess import Position
 from libchess import PolyglotOpeningBookEntry
 from libchess import GameHeaderBag
+from libchess import PgnIndex
 
 # Stable.
 #from chess.game_header_bag import GameHeaderBag

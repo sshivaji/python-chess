@@ -95,6 +95,7 @@
 #include "position.h"
 #include "polyglot_opening_book_entry.h"
 #include "game_header_bag.h"
+#include "pgn_index.h"
 
 // uint64_t literals.
 #ifdef _MSC_VER

@@ -208,4 +208,13 @@ class_<GameHeaderBag>("GameHeaderBag", init<>())
     .def("__delitem__", &GameHeaderBag::__delitem__)
     .def("__contains__", &GameHeaderBag::__contains__);
 
+class_<PgnIndex>("PgnIndex", init<std::string>())
+    .add_property("file_name", &PgnIndex::file_name)
+    .add_property("file_size", &PgnIndex::file_size)
+    .add_property("last_write_time", &PgnIndex::last_write_time)
+    .def("__len__", &PgnIndex::__len__)
+    .def("get_game_headers", &PgnIndex::get_game_headers)
+    .def("get_pos", &PgnIndex::get_pos)
+    .def("is_valid", &PgnIndex::is_valid);
+
 } // BOOST_PYTHON_MODULE(libchess)

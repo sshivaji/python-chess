@@ -57,10 +57,12 @@ setuptools.setup(
                 "libchess/pseudo_legal_move_generator.cc",
                 "libchess/polyglot_opening_book_entry.cc",
                 "libchess/game_header_bag.cc",
+                "libchess/pgn_index.cc",
             ],
             libraries=[
                 "boost_python",
                 "boost_regex",
+                "boost_filesystem",
             ],
         ),
     ],
