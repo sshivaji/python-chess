@@ -30,7 +30,7 @@ PgnIndex::PgnIndex(std::string file_name) {
 
     std::ifstream infile(file_name.c_str(), std::ifstream::in);
     std::string line;
-    boost::regex header_regex("\\[([A-Za-z0-9]+)\\s\"(.*)\"\\]");
+    boost::regex header_regex("\\[([A-Za-z0-9]+)\\s\"(.*)\"\\]\\s*");
     boost::cmatch match_results;
     GameHeaderBag game;
 
