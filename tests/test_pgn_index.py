@@ -26,3 +26,19 @@ class PgnIndexTestCase(unittest.TestCase):
         """Tests indexing the uncommented Kasparov vs. Deep Blue PGN."""
         index = chess.PgnIndex("data/games/kasparov-deep-blue-1997.pgn")
         self.assertTrue(index.is_valid())
+
+        # First game.
+        game = index.get_game_headers(0)
+        self.assertEqual(index.get_pos(0), 0)
+        self.assertEqual(game["Site"], "01")
+        self.assertEqual(game["PlyCount"], "89")
+        self.assertEqual(game["ECO"], "A06")
+
+        # Second game.
+        game = index.get_game_headers(1)
+        self.assertEqual(game["Site"], "02")
+
+        # Sixth (and last) game.
+        game = index.get_game_headers(5)
+        self.assertEqual(game["Site"], "06")
+        self.assertEqual(game["PlyCount"], "37")

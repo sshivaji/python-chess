@@ -14,6 +14,10 @@
 // You should have recieved a copy of the GNU General Public License
 // along with this program. If not, see <http://gnu.org/licenses/>.
 
+#include <iostream>
+#include <fstream>
+#include <boost/regex.hpp>
+
 #include "pgn_index.h"
 
 namespace chess {
@@ -24,9 +28,35 @@ PgnIndex::PgnIndex(std::string file_name) {
     boost::filesystem::path path(m_file_name);
     m_last_write_time = boost::filesystem::last_write_time(path);
 
-    // TODO: Actually scan the file.
-    // TODO: Consider creating a hash of the contents.
-    m_file_size = boost::filesystem::file_size(path);
+    std::ifstream infile(file_name.c_str(), std::ifstream::in);
+    std::string line;
+    boost::regex header_regex("\\[([A-Za-z0-9]+)\\s\"(.*)\"\\]");
+    boost::cmatch match_results;
+    GameHeaderBag game;
+
+    long int last_pos = 0;
+
+    while (getline(infile, line)) {
+        if (boost::regex_match(line.c_str(), match_results, header_regex)) {
+            game.__setitem__(match_results[1], match_results[2]);
+        } else {
+            if (game.__len__()) {
+                m_games.push_back(std::make_pair<long int, GameHeaderBag>(last_pos, game));
+                game = GameHeaderBag();
+            }
+
+            last_pos = infile.tellg();
+        }
+    }
+
+    if (game.__len__()) {
+        m_games.push_back(std::make_pair<long int, GameHeaderBag>(last_pos, game));
+    }
+
+    infile.clear();
+    infile.seekg(0, std::ios_base::end);
+    m_file_size = infile.tellg();
+    infile.close();
 }
 
 std::string PgnIndex::file_name() const {
