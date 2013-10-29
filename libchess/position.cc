@@ -20,6 +20,8 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <string.h>
+
 
 #include "position.h"
 #include "libchess.h"
@@ -735,12 +737,101 @@ void Position::set_queenside_castling_right(char color, bool castle) {
     } else {
         throw std::invalid_argument("color");
     }
+    }
+
+bool char_is_piece(int c) {
+   return strchr("PNBRQK",c) != NULL;
+}
+
+// char_is_file()
+
+bool char_is_file(int c) {
+
+   return c >= 'a' && c <= 'h';
+}
+
+// char_is_rank()
+
+bool char_is_rank(int c) {
+
+   return c >= '1' && c <= '8';
+}
+
+// file_from_char()
+
+int file_from_char(int c) {
+
+//   ASSERT(c>='a'&&c<='h');
+
+   return c - 'a';
+}
+
+// rank_from_char()
+
+int rank_from_char(int c) {
+
+//   ASSERT(c>='1'&&c<='8');
+
+   return c - '1';
+}
+
+// file_to_char()
+
+int file_to_char(int file) {
+
+   return 'a' + file;
+}
+
+// rank_to_char()
+
+int rank_to_char(int rank) {
+
+//   ASSERT(rank>=0&&rank<8);
+
+   return '1' + rank;
+}
+
+Square square_from_string(const char s[]) {
+
+   int file, rank;
+
+
+   if (s[0] < 'a' || s[0] > 'h') return NULL;
+   if (s[1] < '1' || s[1] > '8') return NULL;
+   if (s[2] != '\0') return NULL;
+
+   file = file_from_char(s[0]);
+   rank = rank_from_char(s[1]);
+
+//   std::cout << "file: "<< file << "\n";
+//   std::cout << "rank: "<< rank << "\n";
+   
+   return Square(rank, file);
+}
+
+// square_side_rank()
+
+int square_side_rank(Square sq, char colour) {
+
+   int rank;
+
+//   ASSERT(square_is_ok(square));
+//   ASSERT(colour_is_ok(colour));
+
+   rank = sq.rank();
+   if (colour == 'b') rank = 7-rank;
+
+   return rank;
 }
 
 Move Position::get_move_from_san(const std::string& san) const {
-    LegalMoveGenerator legal_moves(*this);
+    int len;
+    int left, right;
+    int c;
 
     if (san == "O-O" || san == "O-O-O") {
+        LegalMoveGenerator legal_moves(*this);
+
         // Castling moves.
         Square target;
         int rank = m_turn == 'w' ? 0 : 7;
@@ -755,66 +846,261 @@ Move Position::get_move_from_san(const std::string& san) const {
             return move;
         }
     } else {
-        boost::smatch matches;
-        if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$"), boost::match_extra)) {
-            // Get the piece type.
-            std::string matched_piece(matches[1].first, matches[1].second);
-            Piece piece = Piece::from_color_and_type(
-                m_turn,
-                matched_piece == "" ? 'p' : tolower(matched_piece.at(0)));
+        len = san.length();
+        std::string lan = "???????";
 
-            // Get the target square.
-            std::string matched_target(matches[4].first, matches[4].second);
-            Square target = Square(matched_target);
+        left = 0;
+        right = len;
 
-            // Get the source file and rank.
-            std::string matched_file(matches[2].first, matches[2].second);
-            std::string matched_rank(matches[3].first, matches[3].second);
-            int file = matched_file == "" ? -1 : (matched_file.at(0) - 'a');
-            int rank = matched_rank == "" ? -1 : (matched_rank.at(0) - '1');
+        // skip trailing '+' or '#'
 
-            // Get the promotion type.
-            std::string matched_promotion(matches[5].first, matches[5].second);
-            char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(0));
+        if (left < right) {
+            c = san[right - 1];
+            if (c == '+' || c == '#') right--;
+        }
 
-            // Find a matching move.
-            legal_moves.__iter__();
-            Square source;
-            while (legal_moves.has_more()) {
-                Move move = legal_moves.next();
+        // moved piece
 
-                if (move.promotion() != promotion) {
-                    continue;
-                }
+        if (left < right) {
 
-                if (get(move.source()) != piece || move.target() != target) {
-                    continue;
-                }
+            c = san[left];
 
-                if (file != -1 && file != move.source().file()) {
-                    continue;
-                }
-
-                if (rank != -1 && rank != move.source().rank()) {
-                    continue;
-                }
-
-                // Found a matching move. Make sure it is not ambigous.
-                if (source.is_valid()) {
-                    throw std::invalid_argument("san");
-                }
-                source = move.source();
-            }
-
-            // Return the found move.
-            if (source.is_valid()) {
-                if (promotion) {
-                    return Move(source, target, promotion);
-                } else {
-                    return Move(source, target);
-                }
+            if (char_is_piece(c)) {
+                lan[0] = c;
+                left++;
             }
         }
+
+        // promotion
+
+        if (left < right) {
+
+            c = toupper(san[right - 1]);
+
+            if (char_is_piece(c)) {
+
+                lan[6] = c;
+                right--;
+
+                // skip '='
+
+                if (left < right && san[right - 1] == '=') right--;
+            }
+        }
+
+        // to-square rank
+
+        if (left < right) {
+
+            c = san[right - 1];
+
+            if (char_is_rank(c)) {
+                lan[5] = c;
+                right--;
+            }
+        }
+
+        // to-square file
+
+        if (left < right) {
+
+            c = san[right - 1];
+
+            if (char_is_file(c)) {
+                lan[4] = c;
+                right--;
+            }
+        }
+
+        // captured piece
+
+        if (left < right) {
+
+            c = san[right - 1];
+
+            if (char_is_piece(c)) {
+                lan[3] = c;
+                right--;
+            }
+        }
+
+        // skip middle '-' or 'x'
+
+        if (left < right) {
+            c = san[right - 1];
+            if (c == '-' || c == 'x') right--;
+        }
+
+        // from-square file
+
+        if (left < right) {
+
+            c = san[left];
+
+            if (char_is_file(c)) {
+                lan[1] = c;
+                left++;
+            }
+        }
+
+        // from-square rank
+
+        if (left < right) {
+
+            c = san[left];
+
+            if (char_is_rank(c)) {
+                lan[2] = c;
+                left++;
+            }
+        }
+
+        if (left != right) throw std::invalid_argument("left_not_equal_right");
+
+//            int len;
+//            Move move;
+        char promote;
+        char s[256];
+        Square from, to;
+        char colour;
+        int inc;
+        int piece_char;
+        int n;
+
+//        std::cout << "lan: " << lan << "\n";
+        // init
+
+        len = lan.length();
+        if (len != 7) throw std::invalid_argument("len");
+
+        //   move = MoveNone;
+        colour = turn();
+
+        promote = lan[6];
+
+        s[0] = lan[4];
+        s[1] = lan[5];
+        s[2] = '\0';
+
+//        std::cout << "s[0]: "<<s[0] << "\n";
+//        std::cout << "s[1]: "<<s[1] << "\n";
+
+        to = square_from_string(s);
+
+        if (lan[1] != '?' && lan[2] != '?') {
+            // from square
+
+            s[0] = lan[1];
+            s[1] = lan[2];
+            s[2] = '\0';
+
+            from = square_from_string(s);
+            if (from == NULL) throw std::invalid_argument("from_square");
+
+            // convert "king slide" castling to KxR
+
+            //      if (piece_is_king(board->square[from])
+            //       && square_rank(to) == square_rank(from)
+            //       && abs(to-from) > 1) {
+            //         side = (to > from) ? SideH : SideA;
+            //         to = board->castle[colour][side];
+            //         if (to == SquareNone) return MoveNone;
+            //      }
+
+            // move
+//            std::cout << "promote: " << promote << "\n";
+            if (promote == '?') {
+                return Move(from, to);
+            } else {
+                return Move(from, to, tolower(promote));
+            }
+
+            //      move = move_make(from,to) | promote;
+            //
+            //      return move;
+        }
+
+        // pawn non-capture?
+
+        if (lan[0] == '?' && lan[1] == '?') {
+//            std::cout << "Pawn non capture" << "\n";    
+            //      if (board->square(to) != Empty) return MoveNone; // useful?
+
+            inc = (colour == 'w') ? +8 : -8;
+            int from_sq = to.index() - inc;
+//            std::cout << "before_from_sq: "<< from_sq << "\n";
+//            std::cout << from_sq << "\n";
+            char piece_char = 'P';
+            
+            if (colour == 'b') {
+                piece_char = tolower(piece_char);
+            }
+            
+//            std::cout << "after_from_sq: "<< from_sq << "\n";
+
+            
+//            std::cout<<"from_sq on rank 3"<<m_board[from_sq]<<"\n";
+            
+            if (m_board[Square(from_sq).x88_index ()] == Piece() && square_side_rank(to, colour) == 3) {
+//                std::cout << "Found pawn match on 2nd rank\n";
+                from_sq -= inc;
+            }
+//            std::cout << "after_from_sq: "<< from_sq << "\n";
+//            std::cout << "after_sq name: "<< Square(from_sq).name() << "\n";
+//            std::cout << "promotion: "<<promote << "\n";
+
+            //      if (board->square[from] != piece_make_pawn(colour)) { // useful?
+            //         return MoveNone;
+            //      }
+
+            // mov
+
+            if (promote == '?') {
+                return Move(Square(from_sq), to);
+            } else {  
+                return Move(Square(from_sq), to, tolower(promote));
+            }
+
+    //                return NULL;
+        }
+
+        // pawn capture?
+
+        piece_char = lan[0];
+
+        if (piece_char == '?' && lan[1] != '?') {
+            piece_char = 'P';
+        }
+
+        // attack loop
+
+        n = 0;
+//        std::cout << "Before attack loop" << "\n";
+        
+        AttackerGenerator *ag = get_attackers(colour, to);
+        while (ag->has_more()) {
+            Square s = ag->next();
+//            std::cout << s << "\n";
+            
+            if (colour == 'b') {
+                piece_char = tolower(piece_char);
+            }
+            
+            if (m_board[s.x88_index()]==Piece(piece_char)) {
+//                std::cout << "matching move found on square: " << s << "\n";
+                if (((lan[1] == '?') || file_to_char(s.file()) == lan[1])
+                    && (lan[2] == '?' || rank_to_char(s.rank()) == lan[2]))
+                  {
+                    if (promote!='?')
+                        return Move(s, to, tolower(promote));
+                    else {
+                        return Move(s, to);
+                    }
+                  }
+            }
+            
+        }
+        
     }
 
     throw std::invalid_argument("san");

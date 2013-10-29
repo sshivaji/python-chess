@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import distutils
+import distutils.sysconfig
 import os
 import setuptools
 
@@ -60,8 +61,8 @@ setuptools.setup(
                 "libchess/polyglot_opening_book_entry.cc",
             ],
             libraries=[
-                "boost_python",
-                "boost_regex",
+                "boost_python-mt",
+                "boost_regex-mt",
             ],
         ),
     ],
