@@ -94,6 +94,8 @@
 #include "pseudo_legal_move_generator.h"
 #include "position.h"
 #include "polyglot_opening_book_entry.h"
+#include "game_header_bag.h"
+#include "pgn_index.h"
 
 namespace chess {
 
