@@ -244,8 +244,8 @@ Square Position::get_real_ep_square() const {
     const int offsets[] = { 17, 15 };
     for (int i = 0; i < 2; i++) {
         int offset = (m_turn == 'w') ? offsets[i] : - offsets[i];
-        if (m_board[offset].is_valid() && m_board[offset].type() == 'p' &&
-            m_board[offset].color() == m_turn) {
+        if (m_board[ep_square.x88_index()+offset].is_valid() && m_board[ep_square.x88_index()+offset].type() == 'p' &&
+            m_board[ep_square.x88_index()+offset].color() == m_turn) {
             return ep_square;
         }
     }
@@ -1266,7 +1266,7 @@ MoveInfo Position::make_move(const Move& move) {
     }
 
     if (info.is_enpassant()) {
-        info.set_san(info.san() + " (e.p.)");
+        info.set_san(info.san() + " e.p.");
     }
 
     return info;
