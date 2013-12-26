@@ -20,7 +20,7 @@
 import distutils
 import distutils.sysconfig
 import os
-import setuptools
+from distutils.core import setup, Extension
 
 def read(filename):
     """Utility function that returns a files contents."""
@@ -33,7 +33,7 @@ if opt:
                                  if flag != "-Wstrict-prototypes")
 
 # Module description.
-setuptools.setup(
+setup(
     name="python-chess",
     version="0.0.5",
     author="Niklas Fiekas",
@@ -46,7 +46,7 @@ setuptools.setup(
     packages=["chess"],
     scripts=["scripts/ecotool.py"],
     ext_modules=[
-        setuptools.extension.Extension(
+        Extension(
             name="libchess",
             sources=[
                 "libchess/libchess.cc",
