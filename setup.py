@@ -63,9 +63,9 @@ setup(
                 "libchess/pgn_index.cc",
             ],
             libraries=[
-                "boost_python-mt",
-                "boost_regex-mt",
-                "boost_filesystem-mt",
+                "boost_python",
+                "boost_regex",
+                "boost_filesystem",
             ],
         ),
     ],
