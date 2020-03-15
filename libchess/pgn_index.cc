@@ -41,7 +41,7 @@ PgnIndex::PgnIndex(std::string file_name) {
             game.__setitem__(match_results[1], match_results[2]);
         } else {
             if (game.__len__()) {
-                m_games.push_back(std::make_pair<long int, GameHeaderBag>(last_pos, game));
+                m_games.push_back(std::make_pair<long int, GameHeaderBag>((long int)last_pos, (GameHeaderBag) game));
                 game = GameHeaderBag();
             }
 
@@ -50,7 +50,7 @@ PgnIndex::PgnIndex(std::string file_name) {
     }
 
     if (game.__len__()) {
-        m_games.push_back(std::make_pair<long int, GameHeaderBag>(last_pos, game));
+        m_games.push_back(std::make_pair<long int, GameHeaderBag>((long int)last_pos, (GameHeaderBag) game));
     }
 
     infile.clear();
